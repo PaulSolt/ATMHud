@@ -254,19 +254,30 @@
 #pragma mark -
 #pragma mark Controlling
 - (void)show {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:nil]; 
+    
 	[__view show];
 }
 
 - (void)update {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:nil]; 
+    
 	[__view update];
 }
 
 - (void)hide {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:nil]; 
+    
 	[__view hide];
 }
 
 - (void)hideAfter:(NSTimeInterval)delay {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:nil]; 
 	[self performSelector:@selector(hide) withObject:nil afterDelay:delay];
+}
+
+- (void)cancelHideAfterDelay {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hide) object:nil]; 
 }
 
 #pragma mark -

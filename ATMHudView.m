@@ -30,17 +30,19 @@
 @synthesize backgroundLayer, imageLayer, captionLayer, progressLayer;
 
 - (CGRect)sharpRect:(CGRect)rect {
-	CGRect r = rect;
-	r.origin.x = (int)r.origin.x;
-	r.origin.y = (int)r.origin.y;
-	return r;
+	CGRect newRect = CGRectZero;
+	newRect.origin.x = (int)rect.origin.x;
+	newRect.origin.y = (int)rect.origin.y;
+    newRect.size.width = (int)rect.size.width;
+    newRect.size.height = (int)rect.size.height;
+	return newRect;
 }
 
 - (CGPoint)sharpPoint:(CGPoint)point {
-	CGPoint _p = point;
-	_p.x = (int)_p.x;
-	_p.y = (int)_p.y;
-	return _p;
+	CGPoint newPoint = CGPointZero;
+	newPoint.x = (int)point.x;
+	newPoint.y = (int)point.y;
+	return newPoint;
 }
 
 - (id)initWithFrame:(CGRect)frame andController:(ATMHud *)c {
@@ -375,11 +377,13 @@
 		case ATMHudApplyModeShow: {
 			if (CGPointEqualToPoint(p.center, CGPointZero)) {
 				self.frame = CGRectMake((self.superview.bounds.size.width-targetBounds.size.width)*0.5f, (self.superview.bounds.size.height-targetBounds.size.height)*0.5f, targetBounds.size.width, targetBounds.size.height);
+                // Truncate decimal places on rect
+                self.frame = [self sharpRect:self.frame];
 			} else {
 				self.bounds = CGRectMake(0, 0, targetBounds.size.width, targetBounds.size.height);
 				self.center = p.center;
 			}
-			
+            
 			[CATransaction begin];
 			[CATransaction setDisableActions:YES];
 			[CATransaction setCompletionBlock:^{
@@ -387,11 +391,12 @@
 					activity.activityIndicatorViewStyle = activityStyle;
 					activity.frame = [self sharpRect:activityRect];
 				}
-				
+                
+                // FIXME: Why do we make it rounded in an animation? shouldn't this happen when we change it?
 				CGRect r = self.frame;
 				[self setFrame:[self sharpRect:r]];
-				
-				if ([delegate respondsToSelector:@selector(hudWillAppear:)]) {
+                
+                if ([delegate respondsToSelector:@selector(hudWillAppear:)]) {
 					[delegate hudWillAppear:p];
 				}
 				
@@ -453,11 +458,13 @@
 			
 			if (CGPointEqualToPoint(p.center, CGPointZero)) {
 				self.frame = CGRectMake((self.superview.bounds.size.width-targetBounds.size.width)*0.5f, (self.superview.bounds.size.height-targetBounds.size.height)*0.5f, targetBounds.size.width, targetBounds.size.height);
+                self.frame = [self sharpRect:self.frame];
+                
 			} else {
 				self.bounds = CGRectMake(0, 0, targetBounds.size.width, targetBounds.size.height);
 				self.center = p.center;
 			}
-			
+
 			CABasicAnimation *ccAnimation = [CABasicAnimation animationWithKeyPath:@"caption"];
 			ccAnimation.duration = 0.001;
 			ccAnimation.toValue = @"";
@@ -483,10 +490,11 @@
 					activity.activityIndicatorViewStyle = activityStyle;
 					activity.frame = [self sharpRect:activityRect];
 				}
-				
+		
+                // FIXME: Why do we make it rounded in an animation? shouldn't this happen when we change it?
 				CGRect r = self.frame;
 				[self setFrame:[self sharpRect:r]];
-				
+                
 				if (![p.updateSound isEqualToString:@""] && p.updateSound != NULL) {
 					[p playSound:p.updateSound];
 				}
@@ -524,7 +532,7 @@
 				[p playSound:p.hideSound];
 			}
 //NSLog(@"GOT TO ATMHudApplyModeHide duration=%f delegate=%x p=%x", p.animateDuration, (unsigned int)delegate, (unsigned int)p);
-			
+            
 			ATMHud *hud = p;
 			assert(hud);
 			[UIView animateWithDuration:p.animateDuration
@@ -535,12 +543,16 @@
 							 completion:^(BOOL finished){
 								 // if (finished) Got to do this regardless of whether it finished or not.
 								 {
-									 self.superview.userInteractionEnabled = NO;
-									 self.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
-									 [self reset];
-									 if ([delegate respondsToSelector:@selector(hudDidDisappear:)]) {
-										 [delegate hudDidDisappear:hud];
-									 } 
+                                     // Check if already hidden before reseting
+                                     if(didHide) {
+                                         self.superview.userInteractionEnabled = NO;
+                                         self.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
+                                         [self reset];
+                                         
+                                         if ([delegate respondsToSelector:@selector(hudDidDisappear:)]) {
+                                             [delegate hudDidDisappear:hud];
+                                         } 
+                                     }
 								 }
 							 }];
 			break;
@@ -555,7 +567,7 @@
 		[self calculate];
 		[self applyWithMode:ATMHudApplyModeShow];
 	} else {
-//NSLog(@"ATMHUD Asked to show, but already showing!!!");
+////NSLog(@"ATMHUD Asked to show, but already showing!!!");
 	}
 }
 
