@@ -292,7 +292,7 @@
 	progressBarRadius = 5.0f;
 	progressBarInset = 3.0f;
 	accessoryPosition = ATMHudAccessoryPositionBottom;
-	appearScaleFactor = disappearScaleFactor = 1.4f;
+	appearScaleFactor = disappearScaleFactor = .8f;
 	
 	__view = [[ATMHudView alloc] initWithFrame:CGRectZero andController:self];
 	__view.autoresizingMask = (UIViewAutoresizingFlexibleTopMargin |
