@@ -10,7 +10,12 @@ Requirements
   * iOS 4.0 or above
   * QuartzCore.framework
   * AudioToolbox.framework (only if you want to use sounds)
-  
+
+Images
+------
+![Cation with image](https://github.com/PaulSolt/ATMHud/raw/master/SampleImages/CaptionAndImage.png)
+![Hide after delay](https://github.com/PaulSolt/ATMHud/raw/master/SampleImages/HideAfter2Seconds.png)
+
 Features
 --------
 
